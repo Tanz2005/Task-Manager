@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Task Manager</title>
+  <!-- Bootstrap CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Flatpickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <!-- Custom (your) CSS -->
+  <link rel="stylesheet" href="custom.css">
+</head>
+<body>
+  <header class="py-4 mb-4 custom-header">
+    <div class="container text-center">
+      <h1>✅ My Task Manager</h1>
+      <p class="lead">Stay organized & track your progress</p>
+      <div id="quote-box" class="motivational-quote mb-3">Stay positive and productive today!</div>
+      <button id="toggle-dark" class="btn btn-dark btn-sm mb-2">🌙 Dark Mode</button>
+    </div>
+  </header>
+  <main class="container rounded shadow p-4 mb-5">
+    <form class="row g-3 align-items-center mb-4">
+      <div class="col-md-4">
+        <input type="text" id="task-input" class="form-control" placeholder="Enter a new task..." />
+      </div>
+      <div class="col-md-2">
+        <input type="text" id="due-date" class="form-control" placeholder="Due Date" />
+      </div>
+      <div class="col-md-2">
+        <select id="priority" class="form-select">
+          <option value="Low">Low</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select id="label" class="form-select">
+          <option value="General" selected>General</option>
+          <option value="Work">Work</option>
+          <option value="Personal">Personal</option>
+          <option value="Outdoor">Outdoor</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select id="recurrence" class="form-select">
+          <option value="None" selected>No Repeat</option>
+          <option value="Daily">Daily</option>
+          <option value="Weekly">Weekly</option>
+          <option value="Monthly">Monthly</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-2 mt-2 mt-md-0 d-grid">
+        <button id="add-task" type="button" class="btn btn-success">Add Task</button>
+      </div>
+    </form>
+    <div class="d-flex align-items-center mb-4">
+      <label for="sort-by" class="form-label mb-0 me-2">Sort By:</label>
+      <select id="sort-by" class="form-select w-auto">
+        <option value="none" selected>None</option>
+        <option value="priority">Priority</option>
+        <option value="dueDate">Due Date</option>
+        <option value="label">Label</option>
+      </select>
+    </div>
+    <div class="progress mb-4" style="height: 25px;">
+      <div id="progress" class="progress-bar" role="progressbar" style="width: 0%">0% completed</div>
+    </div>
+    <div id="progress-text" class="mt-1"></div>
+    <ul id="task-list" class="list-group"></ul>
+  </main>
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Your JS -->
+  <script src="app.js"></script>
+</body>
+</html>

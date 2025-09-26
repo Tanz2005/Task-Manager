@@ -1,0 +1,81 @@
+body {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  min-height: 100vh;
+}
+
+/* Header gradients and rounded */
+.custom-header {
+  background: linear-gradient(90deg, #7de2fc 0%, #b9b6e5 100%);
+  border-radius: 16px;
+  box-shadow: 0 6px 15px rgba(125, 226, 252, 0.13);
+}
+body.dark .custom-header {
+  background: linear-gradient(90deg, #232526 0%, #485563 100%);
+  color: #fff !important;
+}
+
+.container {
+  background: linear-gradient(120deg, #f3f9fd 0%, #e7eafc 100%);
+}
+body.dark .container {
+  background: linear-gradient(120deg, #2c3e50 0%, #232526 100%);
+}
+
+body.dark .text-muted {
+  color: #ffe37b !important;
+}
+
+/* Motivational quote box */
+.motivational-quote {
+  padding: 13px 20px;
+  max-width: 540px;
+  margin: 18px auto 8px auto;
+  background: linear-gradient(90deg, #f6d365 0%, #fda085 100%);
+  border-left: 6px solid #FFD166;
+  font-size: 17px;
+  text-align: center;
+  border-radius: 12px;
+  color: #444;
+  box-shadow: 0 2px 16px rgba(235, 107, 86, 0.07);
+  transition: background 0.5s, color 0.5s;
+}
+body.dark .motivational-quote {
+  background: linear-gradient(90deg, #232526 0%, #414345 100%);
+  color: #ffe37b;
+}
+
+/* Recurrence badge (custom over bootstrap badge) */
+.recurrence-badge {
+  font-size: 12px;
+  color: #5a5a5a;
+  padding: 4px 10px;
+  background: #f1f3f6;
+  border-radius: 8px;
+  margin-top: 4px;
+  font-style: italic;
+  user-select: none;
+}
+body.dark .recurrence-badge {
+  color: #ffe37b;
+  background: #232628;
+}
+
+/* Priority color highlights */
+.list-group-item.prio-High { border-left: 5px solid #ED5565; }
+.list-group-item.prio-Medium { border-left: 5px solid #FFD166; }
+.list-group-item.prio-Low { border-left: 5px solid #94d0a9; }
+.list-group-item.completed span {
+  text-decoration: line-through !important;
+  color: #999;
+  font-style: italic;
+}
+
+body.dark {
+  background: linear-gradient(135deg, #232526 0%, #485563 100%);
+  color: #eee;
+}
+
+body.dark .list-group-item {
+  background: #222;
+  color: #ffe37b;
+}
