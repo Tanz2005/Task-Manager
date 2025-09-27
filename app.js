@@ -12,26 +12,47 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggleDarkBtn = document.getElementById('toggle-dark');
   const quoteBox = document.getElementById('quote-box');
 
-  // Initialize flatpickr date picker
-  flatpickr("#due-date", { dateFormat: "Y-m-d", minDate: "today" });
+  // Edit modal elements
+  const editModal = new bootstrap.Modal(document.getElementById('editTaskModal'));
+  const editTaskForm = document.getElementById('edit-task-form');
+  const editTaskText = document.getElementById('edit-task-text');
+  const editDueDate = document.getElementById('edit-due-date');
+  const editPriority = document.getElementById('edit-priority');
+  const editLabel = document.getElementById('edit-label');
+  const editRecurrence = document.getElementById('edit-recurrence');
 
-  // Default motivational quote
+  // Initialize flatpickr on both inputs
+  flatpickr("#due-date", { dateFormat: "Y-m-d", minDate: "today" });
+  flatpickr("#edit-due-date", { dateFormat: "Y-m-d", minDate: "today" });
+
   quoteBox.textContent = "Stay positive and productive today!";
 
-  // Dark mode toggle
   toggleDarkBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark');
   });
 
-  // Initialize tasks
   let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
   let selectedTaskIndex = null;
   let currentSort = 'none';
+  let editingIndex = null;
+  let editMode = false;
 
-  // Event listeners
-  addTaskBtn.addEventListener('click', addTask);
+  addTaskBtn.addEventListener('click', () => {
+    if (editMode) {
+      updateTask();
+    } else {
+      addTask();
+    }
+  });
+
   taskInput.addEventListener('keypress', event => {
-    if (event.key === 'Enter') addTask();
+    if (event.key === 'Enter') {
+      if (editMode) {
+        updateTask();
+      } else {
+        addTask();
+      }
+    }
   });
 
   sortSelect.addEventListener('change', () => {
@@ -41,8 +62,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('keydown', handleKeyboardShortcuts);
 
+  editTaskForm.addEventListener('submit', e => {
+    e.preventDefault();
+    if (editingIndex !== null) {
+      const updatedTask = {
+        text: editTaskText.value.trim(),
+        completed: tasks[editingIndex].completed,
+        dueDate: editDueDate.value,
+        priority: editPriority.value,
+        label: editLabel.value,
+        recurrence: editRecurrence.value || 'None'
+      };
+      tasks[editingIndex] = updatedTask;
+      saveAndRender();
+      editingIndex = null;
+      editModal.hide();
+    }
+  });
+
   renderTasks();
 
+  // Add new task
   function addTask() {
     const text = taskInput.value.trim();
     if (!text) return;
@@ -58,22 +98,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
     tasks.push(task);
     saveAndRender();
+    resetForm();
+    selectedTaskIndex = tasks.length - 1;
+    scrollToTask(selectedTaskIndex);
+  }
 
+  // Open modal and load task for editing
+  function startEditTask(index) {
+    editingIndex = index;
+    const task = tasks[index];
+    editTaskText.value = task.text;
+    editDueDate._flatpickr.setDate(task.dueDate || null);
+    editPriority.value = task.priority || 'Medium';
+    editLabel.value = task.label || 'General';
+    editRecurrence.value = task.recurrence || 'None';
+    editModal.show();
+  }
+
+  // Update existing task from main form (used if user clicked "Update" instead of modal save)
+  function updateTask() {
+    const text = taskInput.value.trim();
+    if (!text || selectedTaskIndex === null) return;
+
+    const updatedTask = {
+      text,
+      completed: tasks[selectedTaskIndex].completed,
+      dueDate: dueDateInput.value,
+      priority: priorityInput.value,
+      label: labelInput.value,
+      recurrence: recurrenceInput.value || 'None'
+    };
+    tasks[selectedTaskIndex] = updatedTask;
+    saveAndRender();
+    resetForm();
+    addTaskBtn.textContent = 'Add Task';
+    editMode = false;
+    selectedTaskIndex = null;
+  }
+
+  // Clear main add-task form
+  function resetForm() {
     taskInput.value = '';
     dueDateInput.value = '';
     priorityInput.value = 'Medium';
     labelInput.value = 'General';
     recurrenceInput.value = 'None';
-
-    selectedTaskIndex = tasks.length - 1;
-    scrollToTask(selectedTaskIndex);
   }
 
+  // Toggle completion and handle recurrence
   function toggleTask(index) {
     tasks[index].completed = !tasks[index].completed;
-
     const task = tasks[index];
-    if (task.completed && task.recurrence !== 'None') {
+    if (task.completed && task.recurrence && task.recurrence !== 'None') {
       let nextDueDate = null;
       if (task.dueDate) {
         let date = new Date(task.dueDate);
@@ -99,21 +175,33 @@ document.addEventListener('DOMContentLoaded', () => {
     saveAndRender();
   }
 
+  // Delete task and update form state properly
   function deleteTask(index) {
     const li = taskList.children[index];
-    li.classList.add("removed");
+    li.classList.add('removed');
     setTimeout(() => {
       tasks.splice(index, 1);
       saveAndRender();
-      selectedTaskIndex = null;
+      if (selectedTaskIndex === index || editingIndex === index) {
+        selectedTaskIndex = null;
+        editingIndex = null;
+        editMode = false;
+        addTaskBtn.textContent = 'Add Task';
+        resetForm();
+        editModal.hide();
+      }
     }, 300);
   }
 
+  // Check if task is overdue
   function isOverdue(dueDate, completed) {
     if (!dueDate || completed) return false;
-    return new Date(dueDate) < new Date(new Date().toDateString());
+    const due = new Date(dueDate);
+    const today = new Date(new Date().toDateString());
+    return due < today;
   }
 
+  // Render list of tasks with buttons
   function renderTasks() {
     let tasksToRender = [...tasks];
 
@@ -132,30 +220,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     taskList.innerHTML = '';
 
-    tasksToRender.forEach((task) => {
+    tasksToRender.forEach(task => {
       const index = tasks.indexOf(task);
       const li = document.createElement('li');
-
       li.className = `list-group-item d-flex justify-content-between align-items-center prio-${task.priority} ${task.completed ? 'completed' : ''}`;
       if (isOverdue(task.dueDate, task.completed)) li.classList.add('list-group-item-danger');
-      if (index === selectedTaskIndex) li.style.outline = "2px solid dodgerblue";
 
-      const mainDiv = document.createElement('div');
-      mainDiv.className = "flex-grow-1";
-
-      function toggleTask(index) {
-      tasks[index].completed = !tasks[index].completed;
-      saveAndRender();
+      if ((selectedTaskIndex === index && !editingIndex) || (editingIndex === index)) {
+        li.style.outline = '2px solid dodgerblue';
       }
 
+      // Main task text and label
+      const mainDiv = document.createElement('div');
+      mainDiv.className = 'flex-grow-1';
+
       const taskSpan = document.createElement('span');
-      taskSpan.textContent = (task.completed ? "✅ " : "⏳ ") + task.text;
-      mainDiv.appendChild(taskSpan);
+      taskSpan.textContent = (task.completed ? '✅ ' : '⏳ ') + task.text;
       taskSpan.style.cursor = 'pointer';
-      taskSpan.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleTask(index);
+      taskSpan.addEventListener('click', e => {
+        e.stopPropagation();
+        toggleTask(index);
       });
+      mainDiv.appendChild(taskSpan);
+
       const labelSpan = document.createElement('span');
       labelSpan.className = 'badge bg-secondary rounded-pill ms-3';
       labelSpan.textContent = task.label;
@@ -163,6 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       li.appendChild(mainDiv);
 
+      // Meta info: due date, priority, recurrence
       const metaDiv = document.createElement('div');
       metaDiv.className = 'text-end';
 
@@ -187,23 +275,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
       li.appendChild(metaDiv);
 
+      // Delete button
       const delBtn = document.createElement('button');
       delBtn.className = 'btn btn-danger btn-sm ms-2';
       delBtn.textContent = 'Delete';
-      delBtn.onclick = (e) => {
+      delBtn.onclick = e => {
         e.stopPropagation();
         deleteTask(index);
       };
       li.appendChild(delBtn);
 
+      // Edit button
+      const editBtn = document.createElement('button');
+      editBtn.className = 'btn btn-warning btn-sm ms-2';
+      editBtn.textContent = 'Edit';
+      editBtn.onclick = e => {
+        e.stopPropagation();
+        startEditTask(index);
+      };
+      li.appendChild(editBtn);
+
       li.addEventListener('click', () => selectTask(index));
 
       taskList.appendChild(li);
     });
-
     updateProgress();
   }
 
+  // Progress bar update
   function updateProgress() {
     const completed = tasks.filter(task => task.completed).length;
     const total = tasks.length;
@@ -221,24 +320,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Save to localStorage & update UI
   function saveAndRender() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
     renderTasks();
   }
 
+  // Selection helpers
   function selectTask(index) {
     selectedTaskIndex = index;
     renderTasks();
     scrollToTask(index);
   }
-
   function scrollToTask(index) {
     const li = taskList.children[index];
     if (li) li.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
+  // Keyboard shortcut handlers
   function handleKeyboardShortcuts(e) {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
 
     if (e.key === 'Delete' && selectedTaskIndex !== null) {
       e.preventDefault();
@@ -248,17 +349,15 @@ document.addEventListener('DOMContentLoaded', () => {
       toggleTask(selectedTaskIndex);
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      if (selectedTaskIndex === null) selectedTaskIndex = 0;
-      else selectedTaskIndex = Math.min(selectedTaskIndex + 1, tasks.length - 1);
+      selectedTaskIndex = selectedTaskIndex === null ? 0 : Math.min(selectedTaskIndex + 1, tasks.length - 1);
       renderTasks();
       scrollToTask(selectedTaskIndex);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      if (selectedTaskIndex === null) selectedTaskIndex = 0;
-      else selectedTaskIndex = Math.max(selectedTaskIndex - 1, 0);
+      selectedTaskIndex = selectedTaskIndex === null ? 0 : Math.max(selectedTaskIndex - 1, 0);
       renderTasks();
       scrollToTask(selectedTaskIndex);
-    } else if (e.key === 'Enter' && selectedTaskIndex === null) {
+    } else if (e.key === 'Enter' && selectedTaskIndex === null && !editMode) {
       addTask();
     }
   }
