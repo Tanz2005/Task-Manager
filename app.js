@@ -11,8 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const sortSelect = document.getElementById('sort-by');
   const toggleDarkBtn = document.getElementById('toggle-dark');
   const quoteBox = document.getElementById('quote-box');
-
-  // Edit modal elements
   const editModal = new bootstrap.Modal(document.getElementById('editTaskModal'));
   const editTaskForm = document.getElementById('edit-task-form');
   const editTaskText = document.getElementById('edit-task-text');
@@ -21,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const editLabel = document.getElementById('edit-label');
   const editRecurrence = document.getElementById('edit-recurrence');
 
-  // Initialize flatpickr on both inputs
   flatpickr("#due-date", { dateFormat: "Y-m-d", minDate: "today" });
   flatpickr("#edit-due-date", { dateFormat: "Y-m-d", minDate: "today" });
 
@@ -82,7 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderTasks();
 
-  // Add new task
   function addTask() {
     const text = taskInput.value.trim();
     if (!text) return;
@@ -103,7 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
     scrollToTask(selectedTaskIndex);
   }
 
-  // Open modal and load task for editing
   function startEditTask(index) {
     editingIndex = index;
     const task = tasks[index];
@@ -115,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
     editModal.show();
   }
 
-  // Update existing task from main form (used if user clicked "Update" instead of modal save)
   function updateTask() {
     const text = taskInput.value.trim();
     if (!text || selectedTaskIndex === null) return;
@@ -136,7 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
     selectedTaskIndex = null;
   }
 
-  // Clear main add-task form
   function resetForm() {
     taskInput.value = '';
     dueDateInput.value = '';
@@ -145,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
     recurrenceInput.value = 'None';
   }
 
-  // Toggle completion and handle recurrence
   function toggleTask(index) {
     tasks[index].completed = !tasks[index].completed;
     const task = tasks[index];
@@ -175,7 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
     saveAndRender();
   }
 
-  // Delete task and update form state properly
   function deleteTask(index) {
     const li = taskList.children[index];
     li.classList.add('removed');
@@ -193,7 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 300);
   }
 
-  // Check if task is overdue
   function isOverdue(dueDate, completed) {
     if (!dueDate || completed) return false;
     const due = new Date(dueDate);
@@ -201,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return due < today;
   }
 
-  // Render list of tasks with buttons
   function renderTasks() {
     let tasksToRender = [...tasks];
 
@@ -230,7 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
         li.style.outline = '2px solid dodgerblue';
       }
 
-      // Main task text and label
       const mainDiv = document.createElement('div');
       mainDiv.className = 'flex-grow-1';
 
@@ -250,7 +238,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       li.appendChild(mainDiv);
 
-      // Meta info: due date, priority, recurrence
       const metaDiv = document.createElement('div');
       metaDiv.className = 'text-end';
 
@@ -275,7 +262,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       li.appendChild(metaDiv);
 
-      // Delete button
       const delBtn = document.createElement('button');
       delBtn.className = 'btn btn-danger btn-sm ms-2';
       delBtn.textContent = 'Delete';
@@ -285,7 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       li.appendChild(delBtn);
 
-      // Edit button
       const editBtn = document.createElement('button');
       editBtn.className = 'btn btn-warning btn-sm ms-2';
       editBtn.textContent = 'Edit';
@@ -302,7 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateProgress();
   }
 
-  // Progress bar update
   function updateProgress() {
     const completed = tasks.filter(task => task.completed).length;
     const total = tasks.length;
@@ -320,13 +304,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Save to localStorage & update UI
   function saveAndRender() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
     renderTasks();
   }
 
-  // Selection helpers
   function selectTask(index) {
     selectedTaskIndex = index;
     renderTasks();
@@ -337,7 +319,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (li) li.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
-  // Keyboard shortcut handlers
   function handleKeyboardShortcuts(e) {
     if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
 

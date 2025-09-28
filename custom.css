@@ -3,7 +3,6 @@ body {
   min-height: 100vh;
 }
 
-/* Header gradients and rounded */
 .custom-header {
   background: linear-gradient(90deg, #7de2fc 0%, #b9b6e5 100%);
   border-radius: 16px;
@@ -25,7 +24,6 @@ body.dark .text-muted {
   color: #ffe37b !important;
 }
 
-/* Motivational quote box */
 .motivational-quote {
   padding: 13px 20px;
   max-width: 540px;
@@ -44,7 +42,6 @@ body.dark .motivational-quote {
   color: #ffe37b;
 }
 
-/* Recurrence badge (custom over bootstrap badge) */
 .recurrence-badge {
   font-size: 12px;
   color: #5a5a5a;
@@ -60,7 +57,6 @@ body.dark .recurrence-badge {
   background: #232628;
 }
 
-/* Priority color highlights */
 .list-group-item.prio-High { border-left: 5px solid #ED5565; }
 .list-group-item.prio-Medium { border-left: 5px solid #FFD166; }
 .list-group-item.prio-Low { border-left: 5px solid #94d0a9; }
